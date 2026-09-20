@@ -2,13 +2,14 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import './index.css'
-import AppRoutes from './routes/AppRoutes.jsx'
+import './App.css'
+import AppRoutes from './routes/AppRoutes'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <AppRoutes />
-      {/* AppRoutes es quien decide mostrar App según la ruta (/login) */}
+      {/* AppRoutes decide qué pantalla mostrar según la ruta (/login, /register, /tasks) */}
     </BrowserRouter>
   </StrictMode>,
 )
