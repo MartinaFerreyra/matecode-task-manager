@@ -397,5 +397,4 @@ Cerró con un orden de trabajo (email, TypeScript y estructura, tests, deploy, R
 - **Sin acceso a las consolas.** La IA no puede ver AWS, Vercel ni Firebase; la configuración manual dependió de que yo describiera lo que veía en cada paso.
 - **"Compila" no es "funciona".** Fue necesario probar en producción para detectar problemas de configuración que ningún test local podía ver.
 
-### Aprendizajes
-La IA acelera de forma notable las tareas repetitivas, la depuración y la escritura de pruebas, pero rinde mejor cuando el objetivo y las restricciones están claros, cada resultado se verifica con evidencia y se entiende cada decisión de diseño. La responsabilidad sobre la arquitectura, la seguridad y la calidad del resultado sigue siendo del desarrollador.
+
