@@ -350,6 +350,37 @@ Utilicé **Claude Code**, un asistente de IA que opera desde la terminal con acc
 - **Diagnóstico del despliegue.** A partir del mensaje exacto de cada error, identificó la causa: `auth/invalid-api-key` por variables `VITE_` mal cargadas en el build; el dominio de Vercel sin autorizar en Firebase; variables asignadas solo a *Preview* en lugar de *Production*; y un permiso de IAM con un ARN de ejemplo en lugar del real. En varios casos lo comprobó consultando el sitio real desde fuera (el endpoint pasó de `500` a `401`).
 - **Revisión de seguridad.** Escaneó el JavaScript publicado y todo el historial de git en busca de claves de AWS.
 
+### Ejemplo de una interacción representativa: auditoría contra la consigna
+
+**Contexto.** Con la primera versión del envío de email ya funcionando en local, quise comprobar que el proyecto cumplía el enunciado y el entregable antes de seguir invirtiendo tiempo.
+
+**Consulta** (en la sesión fue una versión más breve; esta es la formulación que recomiendo, con criterios explícitos):
+
+> Te comparto el enunciado completo y los criterios del entregable. Audita el estado real del repositorio contra cada requisito (autenticación, CRUD, Firestore, email con SES, TypeScript, tests, deploy, seguridad, estructura, commits y README) y dime, con evidencia del código, cuáles cumplimos, cuáles cumplimos parcialmente y cuáles no. Ordena lo pendiente por prioridad y señala las decisiones que me corresponden a mí. **No modifiques nada todavía:** primero quiero revisar el diagnóstico.
+
+**Respuesta de la IA (resumen).** Inspeccionó el repositorio real (remoto de git, historial, extensiones de archivos, carpeta de tests, configuración de Vercel) y devolvió una tabla por requisito, sin hacer cambios. Hallazgos principales:
+
+| Hallazgo | Detalle |
+|---|---|
+| **Desalineación crítica** | El envío de email estaba construido sobre AWS Lambda, pero la consigna exige *SES invocado a través de Vercel Functions*. Propuso migrarlo reutilizando casi todo el código. |
+| TypeScript | 14 archivos JS/JSX contra 2 en TypeScript, y `npm run build` no pasaba. |
+| Tests | La carpeta `tests/` estaba vacía. |
+| Control de versiones | Un solo commit, con todo el trabajo sin versionar. |
+| Seguridad y errores | Las reglas de Firestore no estaban desplegadas y el login con Google no mostraba errores al usuario. |
+| Documentación | El README era el de la plantilla de Vite. |
+
+Cerró con un orden de trabajo (email, TypeScript y estructura, tests, deploy, README y commits) y cuatro decisiones que me correspondían: confirmar el cambio de Lambda a Vercel, elegir la carpeta `api/` o `functions/`, separar Login y Register, y validar el orden propuesto.
+
+**Resultado.** Aprobé el plan y se ejecutó completo: el email se migró a Vercel Functions, todo `src/` pasó a TypeScript, se escribieron 131 tests y el proyecto se desplegó. Detectar la desalineación en esta etapa evitó descubrirla al momento de entregar, cuando rehacerlo habría sido mucho más costoso.
+
+**Por qué funcionó.** Compartir el enunciado completo dio criterios verificables; pedir el diagnóstico *sin cambios* mantuvo el control en mis manos; exigir evidencia del código evitó una respuesta genérica; y la IA devolvió como decisiones mías lo que realmente lo eran.
+
+### Ejemplo breve: diagnóstico de un error de despliegue
+
+**Consulta.** Pegué el mensaje exacto de la consola (`auth/invalid-api-key`, luego "El servicio no está configurado", luego un `AccessDeniedException` de AWS) junto con lo que veía en el panel de Vercel.
+
+**Respuesta.** En cada caso la IA identificó la causa concreta y los pasos para corregirla: variables `VITE_` ausentes en el build, `FIREBASE_PROJECT_ID` asignada solo al entorno *Preview* en lugar de *Production*, y una política de IAM que aún tenía el ARN de ejemplo. Además **lo verificó desde fuera** consultando el endpoint real: pasó de `500 - El servicio no está configurado` a `401 - Tenés que iniciar sesión…` cuando la variable quedó bien. Ese patrón (reportar el mensaje exacto, recibir la causa y confirmar con una prueba objetiva) resolvió cada bloqueo en pocos intentos.
+
 ### Patrones y buenas prácticas que descubrí
 - **Dar contexto y restricciones explícitas desde el principio.** Una sola restricción (no pagar Blaze) cambió toda la arquitectura del envío.
 - **Plan antes que código**, pidiendo que se expongan los *trade-offs* de cada alternativa (Cloud Functions, Lambda, Vercel Functions).
